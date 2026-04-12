@@ -4,6 +4,11 @@
 class Honeyhex < Formula
   include Language::Python::Virtualenv
 
+  # pydantic_core ships a Mach-O bundle with @rpath-based IDs. Homebrew’s default
+  # relocation rewrites those to long absolute paths under opt/honeyhex — often exceeding
+  # Mach-O header space (“Updated load commands do not fit”). preserve_rpath skips that.
+  preserve_rpath
+
   desc "Distributed ledger of intelligence for agent workflows"
   homepage "https://github.com/rithvik-duddupudi/HoneyHex"
   url "https://files.pythonhosted.org/packages/21/7f/813eb8673df97701748e959de4805677150e490207c581856293ce39a5c7/honeyhex-0.1.0.tar.gz"
