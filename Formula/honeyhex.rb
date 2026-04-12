@@ -13,11 +13,14 @@ class Honeyhex < Formula
   depends_on "git"
 
   def install
-    # Use Homebrew’s python binary explicitly — bare `python3.12` is not always on the
-    # formula superenv PATH (keg-only python@3.12), which caused "Failed to execute: python3.12".
+    # 1) Use opt_bin so `python3.12` resolves during superenv (keg-only python).
+    # 2) Install from the staged sdist (`buildpath`), not `pip install honeyhex==…`:
+    #    the latter hits PyPI’s simple API from the sandbox and often fails with
+    #    “No matching distribution found (from versions: none)” even when the
+    #    package exists — the tarball is already fetched and extracted by Homebrew.
     python = Formula["python@3.12"].opt_bin/"python3.12"
     venv = virtualenv_create(libexec, python)
-    venv.pip_install_and_link("honeyhex==#{version}")
+    venv.pip_install_and_link(buildpath)
   end
 
   test do
