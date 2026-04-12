@@ -13,14 +13,16 @@ class Honeyhex < Formula
   depends_on "git"
 
   def install
-    # 1) Use opt_bin so `python3.12` resolves during superenv (keg-only python).
-    # 2) Install from the staged sdist (`buildpath`), not `pip install honeyhex==…`:
-    #    the latter hits PyPI’s simple API from the sandbox and often fails with
-    #    “No matching distribution found (from versions: none)” even when the
-    #    package exists — the tarball is already fetched and extracted by Homebrew.
+    # Staged sdist (`buildpath`) — do not use `pip install honeyhex==…` (PyPI index issues in brew).
+    # Homebrew’s `venv.pip_install*` passes `std_pip_args`, which includes `--no-deps`, so the
+    # package would install **without** typer/pydantic/GitPython/fs. Call `pip install` on the
+    # venv’s Python directly so declared dependencies are pulled in.
     python = Formula["python@3.12"].opt_bin/"python3.12"
-    venv = virtualenv_create(libexec, python)
-    venv.pip_install_and_link(buildpath)
+    virtualenv_create(libexec, python)
+    system libexec/"bin/python", "-m", "pip", "install", "-v", buildpath
+
+    bin.install_symlink libexec/"bin/hex"
+    bin.install_symlink libexec/"bin/honeyhex-api"
   end
 
   test do
