@@ -13,7 +13,10 @@ class Honeyhex < Formula
   depends_on "git"
 
   def install
-    virtualenv_install_with_resources using: "python3.12"
+    # Install from PyPI (wheels for deps) instead of `pip install .` on the extracted
+    # sdist — avoids PEP 517 / build-isolation failures on some macOS + Homebrew setups.
+    venv = virtualenv_create(libexec, "python3.12")
+    venv.pip_install_and_link("honeyhex==#{version}")
   end
 
   test do
