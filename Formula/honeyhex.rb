@@ -13,9 +13,10 @@ class Honeyhex < Formula
   depends_on "git"
 
   def install
-    # Install from PyPI (wheels for deps) instead of `pip install .` on the extracted
-    # sdist — avoids PEP 517 / build-isolation failures on some macOS + Homebrew setups.
-    venv = virtualenv_create(libexec, "python3.12")
+    # Use Homebrew’s python binary explicitly — bare `python3.12` is not always on the
+    # formula superenv PATH (keg-only python@3.12), which caused "Failed to execute: python3.12".
+    python = Formula["python@3.12"].opt_bin/"python3.12"
+    venv = virtualenv_create(libexec, python)
     venv.pip_install_and_link("honeyhex==#{version}")
   end
 
